@@ -453,7 +453,6 @@ def _call_method(func, kwargs):
     import random
     random.seed()
     if "web" in kwargs:
-        kwargs["no_check_hostname"] = True
         try:
             out, hist = func(**kwargs)
         except Exception, e:
