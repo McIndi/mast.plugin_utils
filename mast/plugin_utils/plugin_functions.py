@@ -367,14 +367,15 @@ def render_select_object_class(key):
 
 
 @logged("mast.plugin_utils.plugin_functions")
-def get_form(plugin, fn_name, appliances, credentials):
+def get_form(plugin, fn_name, appliances, credentials, no_check_hostname=True):
     """Return a form suitable for gathering arguments to function name"""
+    check_hostname = not no_check_hostname
     textboxes = []
     checkboxes = []
     file_uploads = []
     selects = []
-    # TODO: Allow check_hostname to be specified
-    env = Environment(appliances, credentials, check_hostname=False)
+
+    env = Environment(appliances, credentials, check_hostname=check_hostname)
 
     forms = ['<div class="{0}Form"><div name="{1}">'.format(plugin, fn_name)]
 
