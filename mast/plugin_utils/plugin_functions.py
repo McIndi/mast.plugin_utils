@@ -453,6 +453,14 @@ def _call_method(func, kwargs):
     to a file and return the html for inclusion in the web GUI."""
     import random
     random.seed()
+    if not kwargs["appliances"][0]:
+        # Kind of a hack to return the response we want in case no appliances
+        # were checked in the gui
+        def _func(*args, **kwargs):
+            return (
+                "Must select at least one appliance.",
+                "Must select at least one appliance.")
+        func = _func
     if "web" in kwargs:
         try:
             out, hist = func(**kwargs)
