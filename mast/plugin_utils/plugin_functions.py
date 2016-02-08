@@ -411,8 +411,10 @@ def get_form(plugin, fn_name, appliances, credentials, no_check_hostname=True):
                 selects.append(render_multiselect_object_class(key))
                 continue
             textboxes.append(render_multitext(key))
-        elif isinstance(value, str):
+        elif isinstance(value, basestring):
             if key == 'out_dir':
+                continue
+            elif key == 'out_file':
                 continue
             elif key in OBJECT_STATUS_ARGS:
                 selects.append(render_select_object_status(key, env))
@@ -430,8 +432,6 @@ def get_form(plugin, fn_name, appliances, credentials, no_check_hostname=True):
         elif isinstance(value, int):
             textboxes.append(render_textbox(key, value))
         elif value is None:
-            if key == 'out_file':
-                continue
             if key == 'file_in':
                 file_uploads.append(render_file_upload(plugin, key))
                 continue
@@ -520,17 +520,22 @@ def call_method(plugin, form):
                             for _ in form.getlist(arg + '[]')]
             else:
                 kwargs[arg] = form.getlist(arg + '[]')
-        elif isinstance(default, str):
+        elif isinstance(default, basestring):
             if arg == 'out_dir':
-                # HERE
                 kwargs[arg] = os.path.join('tmp', 'web', name, t.timestamp)
+            elif arg == 'out_file':
+                kwargs[arg] = os.path.join("tmp",
+                                           "web",
+                                           name,
+                                           "{}-{}{}".format(t.timestamp,
+                                                            name,
+                                                            os.path.splitext(default)[1])
+                ).replace(os.path.sep, "/")
             else:
                 kwargs[arg] = form.get(arg) or default
         elif isinstance(default, int):
             kwargs[arg] = int(form.get(arg)) or default
         elif default is None:
-            if arg == 'out_file':
-                continue
             kwargs[arg] = form.get(arg) or default
     out, history_id = _call_method(func, kwargs)
     link = ""
@@ -551,6 +556,17 @@ def call_method(plugin, form):
         zip_file.close()
         #filename = '%s-%s.zip' % (t.timestamp, name)
         link = flask.Markup(flask.render_template('link.html', filename=fname))
+    if 'out_file' in kwargs:
+        import shutil
+        config = get_config("server.conf")
+        static_dir = config.get('dirs', 'static')
+        dst = os.path.join(static_dir,
+                           "tmp",
+                           os.path.basename(kwargs["out_file"]))
+        shutil.copyfile(kwargs["out_file"], dst)
+
+        link = flask.Markup(flask.render_template('link.html',
+                                                  filename=os.path.basename(kwargs["out_file"])))
     out = flask.render_template(
         'output.html',
         output=out,
@@ -593,5 +609,3 @@ def handle(plugin):
         except:
             logger.exception("An unhandled exception occurred during processing of request.")
             raise
-
-
