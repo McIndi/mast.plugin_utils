@@ -432,7 +432,9 @@ def get_form(plugin, fn_name, appliances, credentials, no_check_hostname=True):
         elif isinstance(value, int):
             textboxes.append(render_textbox(key, value))
         elif value is None:
-            if key == 'file_in':
+            if key == 'out_file':
+                continue
+            elif key == 'file_in':
                 file_uploads.append(render_file_upload(plugin, key))
                 continue
             textboxes.append(render_textbox(key, ''))
@@ -523,7 +525,7 @@ def call_method(plugin, form):
         elif isinstance(default, basestring):
             if arg == 'out_dir':
                 kwargs[arg] = os.path.join('tmp', 'web', name, t.timestamp)
-            elif arg == 'out_file':
+            elif arg == 'out_file' and default is not None:
                 kwargs[arg] = os.path.join("tmp",
                                            "web",
                                            name,
@@ -556,7 +558,7 @@ def call_method(plugin, form):
         zip_file.close()
         #filename = '%s-%s.zip' % (t.timestamp, name)
         link = flask.Markup(flask.render_template('link.html', filename=fname))
-    if 'out_file' in kwargs:
+    if 'out_file' in kwargs and kwargs["out_file"] is not None:
         import shutil
         config = get_config("server.conf")
         static_dir = config.get('dirs', 'static')
