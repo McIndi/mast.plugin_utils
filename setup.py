@@ -10,7 +10,7 @@ def read(fname):
 
 setup(
     name = "mast.plugin_utils",
-    version = "2.1.0",
+    version = "2.2.0",
     author = "Clifford Bressette",
     author_email = "cliffordbressette@mcindi.com",
     description = ("A library to dynamically make a Web GUI "
