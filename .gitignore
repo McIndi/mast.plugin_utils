@@ -1,3 +1,4 @@
 build/
 dist/
 mast.plugin_utils.egg-info/
+*.pyc

@@ -477,6 +477,7 @@ def _call_method(func, kwargs):
             msg = "Sorry, an unhandled exception occurred while "
             msg += "performing action:\n\n\t {}".format(str(e))
             out, hist = msg, traceback.format_exc()
+            sys.stderr.write(traceback.format_exc())
         t = Timestamp()
 
         # TODO: move this path to configuration
